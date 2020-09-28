@@ -1,5 +1,6 @@
 FROM python
 
+# ArbeitsOrdner
 WORKDIR /
 
 
@@ -9,8 +10,7 @@ RUN pip3 install flask
 
 
 COPY . /
-
-
 ENTRYPOINT ["python3"]
 
+# Ausfuehren des Skripts
 CMD ["model/WebServer.py"]

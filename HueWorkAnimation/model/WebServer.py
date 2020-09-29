@@ -36,6 +36,7 @@ def work():
 		if process_work:
 			process_work.terminate()
 		End_HUE()
+	turn_lamps_off()
 	return str(work_light)
 
 # Cozy-Skript
@@ -73,6 +74,11 @@ def End_HUE():
 	time.sleep(0.5)
 	chill = {"on":True, "bri":250, "xy":[0.48,0.42]}
 	r = requests.put("http://"+bridge_ip+"/api/"+bridge_username+"/groups/"+str(group_id_bars)+"/action", data=json.dumps(chill), headers=headers)
+
+# Ausschalten der Decken und Nachttischlampe
+def turn_lamps_off():
+	off = {"on":False}
+	r = requests.put("http://"+bridge_ip+"/api/"+bridge_username+"/groups/"+str(group_id_lights)+"/action", data=json.dumps(off), headers=headers)
 
 # Webserver aufruf
 if __name__ == "__main__":

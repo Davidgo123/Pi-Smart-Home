@@ -19,11 +19,11 @@ def chill(brightness):
 def getBrightness():
 	hour = int(datetime.datetime.now().strftime('%H'))
 	if (hour <= 4) or (hour >= 21):
-		return 150
+		return 120
 	if (hour == 5) or (hour == 20):
-		return 170
+		return 150
 	if (hour == 6) or (hour == 19):
-		return 190
+		return 180
 	if (hour == 7) or (hour == 18):
 		return 210
 	if (hour <= 8) or (hour >= 17):

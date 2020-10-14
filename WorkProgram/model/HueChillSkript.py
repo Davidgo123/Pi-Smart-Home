@@ -3,7 +3,7 @@ import time
 import requests
 import datetime
 
-bridge_ip = "192.168.178.31"
+bridge_ip = "192.168.178.45"
 bridge_username = "J5RVHpoWwgviHQbnYdPaYHJTe63sHIRQxVs1ja6i"
 headers = {'content-type': 'application/json'}
 
@@ -12,8 +12,16 @@ group_id_bars = 4
 
 # Startet die Chill Scene auf Hueplay
 def chill(brightness):
-	chill = {"on":True, "bri":brightness, "xy":[0.48,0.42]}
+	chill = {"on":True, "bri":brightness, "xy":[0.52,0.41]}
 	r = requests.put("http://"+bridge_ip+"/api/"+bridge_username+"/groups/"+str(group_id_bars)+"/action", data=json.dumps(chill), headers=headers)
+
+def checkOn():
+	r = requests.get("http://"+bridge_ip+"/api/"+bridge_username+"/groups/"+str(group_id_bars))
+	#Grenzen fuer Power im String festlegen
+	power_U = r.text.find("all_on")+8
+	power_O = r.text.find("all_on")+12
+        #Power extraieren
+	return str(r.text[power_U:power_O])
 
 # Passt Helligkeit an Lautsärke an
 def getBrightness():
@@ -28,12 +36,12 @@ def getBrightness():
 		return 210
 	if (hour <= 8) or (hour >= 17):
 		return 230
-
 	return 250
 
-
-while True:
-        #300s = 5min
-        chill(getBrightness())
-        time.sleep(300)
+#300s = 5min
+chill(getBrightness())
+while(True):
+	time.sleep(5)
+	if(checkOn() == "true"):
+		chill(getBrightness())
 

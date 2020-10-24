@@ -36,10 +36,11 @@ def checkPower():
 	# Power extraieren
 	return str(r.text[power_U:power_O])
 
+t0_input = " "
+
 while True:
 	t0_input = getInput()
 	if checkPower() == "On":
-		time.sleep(1)
 		t1_input = getInput()
 
 		if (t0_input == "AUDIO" and t1_input == "AUDIO") or (t0_input == "Spotify" and t1_input == "Spotify"):
@@ -49,8 +50,8 @@ while True:
 			volumeDown()
 		if t0_input == "Spotify" and t1_input == "AUDIO":
 			volumeUp()
-
-		time.sleep(0.1)
+		time.sleep(0.4)
+		t0_input = t1_input
 
 	else:
-		time.sleep(3)
+		time.sleep(2)

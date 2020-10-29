@@ -12,19 +12,21 @@ group_id_bars = 4
 group_id_lights = 6
 
 # Colors
-chillColorX = 0.5200
-chillColorY = 0.4100
-workColorX = 0.3227
-workColorY = 0.3290
+chillColorX = 0.52
+chillColorY = 0.41
+workColorX = 0.32
+workColorY = 0.32
 
 def work(brightness):
 	payload = {"on":True, "bri":brightness, "xy":[workColorX, workColorY]}
 	r = requests.put("http://"+bridge_ip+"/api/"+bridge_username+"/groups/"+str(group_id_bars)+"/action", data=json.dumps(payload), headers=headers)
+	time.sleep(0.2)
 	r = requests.put("http://"+bridge_ip+"/api/"+bridge_username+"/groups/"+str(group_id_lights)+"/action", data=json.dumps(payload), headers=headers)
 
 def chill(brightness):
 	payload = {"on":True, "bri":brightness, "xy":[chillColorX, chillColorY]}
 	r = requests.put("http://"+bridge_ip+"/api/"+bridge_username+"/groups/"+str(group_id_bars)+"/action", data=json.dumps(payload), headers=headers)
+	time.sleep(0.2)
 	r = requests.put("http://"+bridge_ip+"/api/"+bridge_username+"/groups/"+str(group_id_lights)+"/action", data=json.dumps(payload), headers=headers)
 
 def checkOn():
@@ -54,13 +56,17 @@ def checkColor():
 	colorX_U = r.text.find("[", searchStart)+1
 	colorX_O = r.text.find("[", searchStart)+7
 	#Color X Wert extraieren
-	colorX = float(r.text[colorX_U:colorX_O])
+	colorX = round(float(r.text[colorX_U:colorX_O]),2)
 
 	#Grenzen fuer Color Y Wert festlegen
 	colorY_U = r.text.find("[", searchStart)+8
 	colorY_O = r.text.find("[", searchStart)+14
 	#Y Wert extraieren
-	colorY = float(r.text[colorY_U:colorY_O])
+	colorY = round(float(r.text[colorY_U:colorY_O]),2)
+
+	print(str(chillColorX) + " or " + str(workColorX) + " = " + str(colorX))
+	print(str(chillColorY) + " or " + str(workColorY) + " = " + str(colorY))
+	print(str(getBrightness(-1)) + " or " + str(getBrightness(0)) + " = " + str(bri))
 
 	if ((chillColorX == colorX or workColorX == colorX) and (chillColorY == colorY or workColorY == colorY) and (bri == getBrightness(0) or bri == getBrightness(-1))):
 		return True
@@ -82,16 +88,26 @@ def getBrightness(last):
 		return 230
 	return 250
 
+def reset():
+	print("send reset")
+	r = requests.get("http://192.168.178.50:1337/reset");
+	time.sleep(0.5)
+
 # Main
 work(getBrightness(0))
 while(True):
-	#3600s = 60min
 	if (checkOn() and checkColor()):
+		#3600s = 60min
+		print("work")
 		work(getBrightness(0))
-		time.sleep(3600)
+		time.sleep(6)
+	if (checkOn() and checkColor()):
 		#300s = 5min
+		print("chill")
 		chill(getBrightness(0))
-		time.sleep(300)
+		time.sleep(6)
 	#Falls Einstellungen geaendert werden, wird das Programm beendet
-	else:
+	if ((not checkOn()) or (not checkColor())):
+		reset()
 		break
+

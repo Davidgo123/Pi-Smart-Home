@@ -6,9 +6,9 @@ headers = {'Content-Type': 'text/xml'}
 
 #Setzt Lautstaerke auf -50db (fuer Spotify)
 def volumeDown():
-	payload = '<YAMAHA_AV cmd="PUT"><Main_Zone><Volume><Lvl><Val>-500</Val><Exp>1</Exp><Unit>dB</Unit></Lvl></Volume></Main_Zone></YAMAHA_AV>';
+	payload = '<YAMAHA_AV cmd="PUT"><Main_Zone><Volume><Lvl><Val>-650</Val><Exp>1</Exp><Unit>dB</Unit></Lvl></Volume></Main_Zone></YAMAHA_AV>';
 	r = requests.post(URL, data=payload, headers=headers)
-	print("volumeDown(-50db)")
+	print("volumeDown(-65db)")
 
 #Setzt Lautstaerke auf -30db (fuer Audio)
 def volumeUp():
@@ -36,22 +36,23 @@ def checkPower():
 	# Power extraieren
 	return str(r.text[power_U:power_O])
 
+t1_input = " "
 t0_input = " "
 
 while True:
-	t0_input = getInput()
 	if checkPower() == "On":
-		t1_input = getInput()
+		t0_input = getInput()
 
 		if (t0_input == "AUDIO" and t1_input == "AUDIO") or (t0_input == "Spotify" and t1_input == "Spotify"):
 			print("No Changes on Volume")
 
-		if t0_input == "AUDIO" and t1_input == "Spotify":
+		if t1_input == "AUDIO" and t0_input == "Spotify":
+			time.sleep(0.1)
 			volumeDown()
-		if t0_input == "Spotify" and t1_input == "AUDIO":
+		if t1_input == "Spotify" and t0_input == "AUDIO":
+			time.sleep(0.1)
 			volumeUp()
-		time.sleep(0.4)
-		t0_input = t1_input
-
+		time.sleep(1)
+		t1_input = t0_input
 	else:
-		time.sleep(2)
+		time.sleep(3)

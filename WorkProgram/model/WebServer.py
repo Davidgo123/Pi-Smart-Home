@@ -22,6 +22,13 @@ process_chill = None
 # Webserver
 model = Flask(__name__)
 
+@model.route("/reset")
+def reset():
+	global work_light
+	work_light = False
+	print("reset")
+	return str(work_light)
+
 # Toggle Arbeits-Skript | Chill-Skript
 @model.route("/work")
 def work():
@@ -33,7 +40,7 @@ def work():
 	cozy_light = False
 	work_light = change_bool(work_light)
 
-	if work_light:
+	if (work_light):
 		if process_chill:
 			process_chill.terminate()
 		feedbackStartWork()
@@ -41,7 +48,7 @@ def work():
 		time.sleep(0.5)
 		process_av = subprocess.Popen(['python', 'model/AV-Control.py'])
 
-	elif not work_light:
+	elif (not work_light):
 		if process_work:
 			process_work.terminate()
 		feedbackEndWork()
@@ -106,4 +113,3 @@ def turn_lamps_off():
 # Webserver aufruf
 if __name__ == "__main__":
         model.run(host='0.0.0.0',port=1337,debug=False)
-

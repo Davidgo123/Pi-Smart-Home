@@ -46,10 +46,10 @@ while True:
 		if (t0_input == "AUDIO" and t1_input == "AUDIO") or (t0_input == "Spotify" and t1_input == "Spotify"):
 			print("No Changes on Volume")
 
-		if t1_input == "AUDIO" and t0_input == "Spotify":
+		if t1_input != "Spotify" and t0_input == "Spotify":
 			time.sleep(0.1)
 			volumeDown()
-		if t1_input == "Spotify" and t0_input == "AUDIO":
+		if t1_input != "AUDIO" and t0_input == "AUDIO":
 			time.sleep(0.1)
 			volumeUp()
 		time.sleep(1)

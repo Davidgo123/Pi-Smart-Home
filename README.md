@@ -3,7 +3,7 @@
 
 - Auto reset AV Receiver Volume to -30db by switch from Spotify to PC Input
 - Auto reset AV Receiver Volume to -50db by switch from PC to Spotify Input
-- Set Volume with HTTP Get 
+- Set Volume via HTTP 
 
 [Control Hue Lamps over Webserver]
 

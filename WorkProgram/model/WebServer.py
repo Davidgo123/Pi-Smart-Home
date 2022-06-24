@@ -45,8 +45,6 @@ def work():
 			process_chill.terminate()
 		feedbackStartWork()
 		process_work = subprocess.Popen(['python', 'model/HueWorkSkript.py'])
-		time.sleep(0.5)
-		process_av = subprocess.Popen(['python', 'model/AV-Control.py'])
 
 	elif (not work_light):
 		if process_work:

@@ -85,6 +85,9 @@ def volumeDown_AV():
 
 
 # ---------------------------------------------------------------
+def SetInput_AV(input):
+    payload = '<YAMAHA_AV cmd="GET"><Main_Zone><Input><Input_Sel>' + input + '</Input_Sel></Input></Main_Zone></YAMAHA_AV>'
+    r = requests.post(URL, data=payload, headers=headers)
 
 # Abfragen des Aktuellen Inputs
 def getInput_AV():
@@ -113,6 +116,10 @@ while True:
     if pc_power_last == "inactive" and pc_power_now == "active":
         print('on')
         switchPower_AV('on')
+        time.sleep(5)
+        SetInput_AV('AUDIO')
+        time.sleep(1)
+        volumeUp_AV()
 
     time.sleep(1)
 

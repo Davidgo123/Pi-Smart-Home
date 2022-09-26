@@ -4,7 +4,6 @@ FROM python
 WORKDIR /
 
 # Erweiterungen
-RUN pip3 install time
 RUN pip3 install requests
 RUN pip3 install json
 RUN pip3 install FritzHosts

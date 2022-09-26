@@ -5,7 +5,7 @@ WORKDIR /
 
 # Erweiterungen
 RUN pip3 install requests
-RUN pip3 install FritzHosts
+RUN pip3 install fritzconnection
 
 COPY . /
 ENTRYPOINT ["python3"]

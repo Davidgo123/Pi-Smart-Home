@@ -5,7 +5,8 @@ from fritzconnection.lib.fritzhosts import FritzHosts
 
 macs = ['12:5E:5E:87:E7:9A',  # David
         '1E:6A:E8:18:00:99',  # Lukas
-        '16:D1:B3:39:7E:C4']  # Yannick
+        '16:D1:B3:39:7E:C4'   # Yannick
+        ]
 
 ADDRESS = '192.168.178.1'
 PASSWORD = 'hirt3846'
@@ -55,13 +56,16 @@ while True:
     # get current temp
     currentTemp = getCurrentTemp()
 
-    # check stop heating (device constraint)
-    if not isDeviceHome(macs):
-        # check if heating is not already off
-        r = requests.get('http://192.168.178.106/relay/0?')
-        if not r.json()['ison']:
-            # stop heating
-            r = requests.post('http://192.168.178.106/relay/0?turn=off')
+
+    for x in range(30):
+        # check stop heating (device constraint)
+        if not isDeviceHome(macs):
+            # check if heating is not already off
+            r = requests.get('http://192.168.178.106/relay/0?')
+            if not r.json()['ison']:
+                # stop heating
+                r = requests.post('http://192.168.178.106/relay/0?turn=off')
+        time.sleep(60)
 
     # check stop heating (temp constraint)
     if currentTemp > 12 and oldTemp <= 12:

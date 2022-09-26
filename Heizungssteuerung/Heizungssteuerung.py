@@ -1,7 +1,6 @@
 import time
 import requests
 import json
-from pprint import pprint
 from fritzconnection.lib.fritzhosts import FritzHosts
 
 macs = ['12:5E:5E:87:E7:9A',  # David
@@ -11,19 +10,20 @@ macs = ['12:5E:5E:87:E7:9A',  # David
 ADDRESS = '192.168.178.1'
 PASSWORD = 'hirt3846'
 
+currentTemp = 0
+oldTemp = 0
 
 # ---------------------------------------------------------------
 
 def getCurrentWeatherAsJson():
     # [lat=52,333][lon=9,7] - Wettbergen
-    r = requests.get(
-        'https://api.openweathermap.org/data/2.5/weather?lat=52,333&lon=9,7&units=metric&appid=662e86ccdebdefe4deafe7379cd9113a')
+    r = requests.get('https://api.openweathermap.org/data/2.5/weather?lat=52,333&lon=9,7&units=metric&appid=662e86ccdebdefe4deafe7379cd9113a')
     return json.loads(r.text)
 
-
+# round down currentTemp and return
 def getCurrentTemp():
     json_data = getCurrentWeatherAsJson()
-    return json_data['main']['temp']
+    return json_data['main']['temp']//1
 
 
 # ---------------------------------------------------------------
@@ -52,12 +52,41 @@ def isDeviceHome(devices):
 # check parameters
 while True:
 
-    # Heizung an
-    if isDeviceHome(macs) and getCurrentTemp() < 12:
-        break
+    # get current temp
+    currentTemp = getCurrentTemp()
 
-    # Heizung aus
-    if not isDeviceHome(macs) or getCurrentTemp() > 12:
-        break
+    # check stop heating (device constraint)
+    if not isDeviceHome(macs):
+        # check if heating is not already off
+        r = requests.get('http://192.168.178.106/relay/0?')
+        if not r.json()['ison']:
+            # stop heating
+            r = requests.post('http://192.168.178.106/relay/0?turn=off')
 
+    # check stop heating (temp constraint)
+    if currentTemp > 12 and oldTemp <= 12:
+        print("Temp goes over 12°, heating stopped!")
+        # check if heating is not already off
+        r = requests.get('http://192.168.178.106/relay/0?')
+        if not r.json()['ison']:
+            # stop heating
+            r = requests.post('http://192.168.178.106/relay/0?turn=off')
+
+    # check start heating (temp constraint)
+    if currentTemp <= 12 and oldTemp > 12:
+        print("Temp goes under 13°, check devices!")
+
+        if isDeviceHome(macs):
+            print("Online device found, start heating!")
+            # check if heating is not already on
+            r = requests.get('http://192.168.178.106/relay/0?')
+            if r.json()['ison']:
+                # start heating
+                r = requests.post('http://192.168.178.106/relay/0?turn=on')
+
+
+    # save temp from now
+    oldTemp = currentTemp
+
+    # wait one minute
     time.sleep(60)

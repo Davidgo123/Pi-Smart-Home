@@ -36,7 +36,7 @@ def getCurrentWeatherAsJson():
 # round down currentTemp and return
 def getCurrentTemp():
     json_data = getCurrentWeatherAsJson()
-    print(getCurrentDateTimeAsString() + "  -  got Temp: " + json_data['main']['temp'] // 1)
+    print(getCurrentDateTimeAsString() + "  -  got Temp: " + str(json_data['main']['temp'] // 1))
     return json_data['main']['temp'] // 1
 
 

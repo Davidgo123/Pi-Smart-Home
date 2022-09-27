@@ -120,32 +120,28 @@ def checkTempConstraint_OFF():
 # ---------------------------------------------------------------
 
 while True:
-    try:
-        # get current temp
-        currentTemp = getCurrentTemp()
-        checkIfDeviceIsHome(macs)
+    # get current temp
+    currentTemp = getCurrentTemp()
+    checkIfDeviceIsHome(macs)
 
-        # check 30 times device constraint (one time per minute)
-        print(getCurrentDateTimeAsString() + "  -  start 30 times device checking")
-        for x in range(30):
-            checkDeviceConstraint()
-            time.sleep(60)
+    # check 30 times device constraint (one time per minute)
+    print(getCurrentDateTimeAsString() + "  -  start 30 times device checking")
+    for x in range(30):
+        checkDeviceConstraint()
+        time.sleep(60)
 
-        print(getCurrentDateTimeAsString() + "  -  start temp checking")
-        if checkTempConstraint_OFF():
-            print(getCurrentDateTimeAsString() + "  -  stop heating (temp)")
-            requests.post('http://192.168.178.106/relay/0?turn=off')
+    print(getCurrentDateTimeAsString() + "  -  start temp checking")
+    if checkTempConstraint_OFF():
+        print(getCurrentDateTimeAsString() + "  -  stop heating (temp)")
+        requests.post('http://192.168.178.106/relay/0?turn=off')
 
-        if checkTempConstraint_ON() and DeviceIsHomeState:
-            print(getCurrentDateTimeAsString() + "  -  start heating (temp)")
-            requests.post('http://192.168.178.106/relay/0?turn=on')
+    if checkTempConstraint_ON() and DeviceIsHomeState:
+        print(getCurrentDateTimeAsString() + "  -  start heating (temp)")
+        requests.post('http://192.168.178.106/relay/0?turn=on')
 
-        # save temp from now
-        oldTemp = currentTemp
-        DeviceWasHomeState = DeviceIsHomeState
-
-    except:
-        print("An exception occurred")
+    # save temp from now
+    oldTemp = currentTemp
+    DeviceWasHomeState = DeviceIsHomeState
 
     # wait one minute
     time.sleep(60)

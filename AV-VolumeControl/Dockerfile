@@ -8,6 +8,6 @@ RUN pip3 install requests
 RUN pip3 install fritzconnection
 
 # Trigger Python script
-CMD ["python", "./AVSpotifyVolume.py"]
+CMD ["python","-u","./AVSpotifyVolume.py"]
 
 

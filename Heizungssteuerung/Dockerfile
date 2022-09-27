@@ -1,14 +1,10 @@
-FROM python
+FROM python:3.6
 
-# ArbeitsOrdner
-WORKDIR /
+ADD Heizungssteuerung.py /
 
 # Erweiterungen
 RUN pip3 install requests
 RUN pip3 install fritzconnection
 
-COPY . /
-ENTRYPOINT ["python3"]
-
-# Ausfuehren des Skripts
-CMD ["Heizungssteuerung.py"]
+# Trigger Python script
+CMD ["python","-u","./Heizungssteuerung.py"]

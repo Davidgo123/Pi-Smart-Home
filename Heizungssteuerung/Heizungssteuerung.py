@@ -118,6 +118,7 @@ def checkTempConstraint_OFF():
 
 
 # ---------------------------------------------------------------
+print("start program:")
 
 while True:
     # get current temp

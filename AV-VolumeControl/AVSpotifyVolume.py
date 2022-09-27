@@ -32,11 +32,11 @@ def checkPower_AV():
     power_O = r.text.find("all_on") + 12
 
     if str(r.text[power_U:power_O]) == "true":
-        payload = '<YAMAHA_AV cmd="GET"><Main_Zone><Power_Control><Power>GetParam</Power></Power_Control></Main_Zone></YAMAHA_AV>';
+        payload = '<YAMAHA_AV cmd="GET"><Main_Zone><Power_Control><Power>GetParam</Power></Power_Control></Main_Zone></YAMAHA_AV>'
         r = requests.post(URL, data=payload, headers=headers)
         # Grenzen fuer Power im String festlegen
-        power_U = r.text.find("<Power>") + len("<Power>");
-        power_O = r.text.find("</Power>");
+        power_U = r.text.find("<Power>") + len("<Power>")
+        power_O = r.text.find("</Power>")
         # Power extraieren
         return str(r.text[power_U:power_O])
 
@@ -103,38 +103,43 @@ def getInput_AV():
 # ---------------------------------------------------------------
 
 checkPower_AV()
-
 while True:
+    try:
 
-    # Change powerstate from receiver if pc change powerstate
-    pc_power_now = checkPower_PC()
+        # Change powerstate from receiver if pc change powerstate
+        pc_power_now = checkPower_PC()
 
-    if pc_power_last == "active" and pc_power_now == "inactive":
-        print('off')
-        switchPower_AV('off')
+        if pc_power_last == "active" and pc_power_now == "inactive":
+            print('off')
+            switchPower_AV('off')
 
-    if pc_power_last == "inactive" and pc_power_now == "active":
-        print('on')
-        switchPower_AV('on')
-        time.sleep(3)
-        SetInput_AV('AUDIO')
-        time.sleep(3)
-        volumeUp_AV()
-
-    time.sleep(1)
-
-    # Check powerstate and input from AV and change volume on change
-    if checkPower_AV() == "On":
-
-        av_Input_now = getInput_AV()
-
-        if av_Input_last != "Spotify" and av_Input_now == "Spotify":
-            volumeDown_AV()
-
-        if av_Input_last != "AUDIO" and av_Input_now == "AUDIO":
+        if pc_power_last == "inactive" and pc_power_now == "active":
+            print('on')
+            switchPower_AV('on')
+            time.sleep(3)
+            SetInput_AV('AUDIO')
+            time.sleep(3)
             volumeUp_AV()
 
-    # save last state
-    pc_power_last = pc_power_now
-    av_Input_last = av_Input_now
+        time.sleep(1)
+
+        # Check powerstate and input from AV and change volume on change
+        if checkPower_AV() == "On":
+
+            av_Input_now = getInput_AV()
+
+            if av_Input_last != "Spotify" and av_Input_now == "Spotify":
+                volumeDown_AV()
+
+            if av_Input_last != "AUDIO" and av_Input_now == "AUDIO":
+                volumeUp_AV()
+
+        # save last state
+        pc_power_last = pc_power_now
+        av_Input_last = av_Input_now
+
+    except:
+        print("An exception occurred")
+
+    # wait 2 seconds
     time.sleep(2)

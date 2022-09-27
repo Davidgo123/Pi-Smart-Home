@@ -119,10 +119,8 @@ def checkTempConstraint_OFF():
 
 # ---------------------------------------------------------------
 
-try:
-
-    # main loop
-    while True:
+while True:
+    try:
         # get current temp
         currentTemp = getCurrentTemp()
         checkIfDeviceIsHome(macs)
@@ -146,8 +144,10 @@ try:
         oldTemp = currentTemp
         DeviceWasHomeState = DeviceIsHomeState
 
-        # wait one minute
-        time.sleep(60)
+    except:
+        print("An exception occurred")
 
-except:
-    print("An exception occurred")
+    # wait one minute
+    time.sleep(60)
+
+

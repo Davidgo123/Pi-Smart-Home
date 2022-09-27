@@ -101,6 +101,7 @@ def getInput_AV():
 
 
 # ---------------------------------------------------------------
+print("start program:")
 
 checkPower_AV()
 while True:

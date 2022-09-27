@@ -123,25 +123,29 @@ print("start program:")
 
 while True:
     # get current temp
-    currentTemp = getCurrentTemp()
+    try:
+        currentTemp = getCurrentTemp()
 
-    # check 30 times device constraint (one time per minute)
-    print(getCurrentDateTimeAsString() + "  -  device checking...")
-    checkDeviceConstraint()
+        # check 30 times device constraint (one time per minute)
+        print(getCurrentDateTimeAsString() + "  -  device checking...")
+        checkDeviceConstraint()
 
-    print(getCurrentDateTimeAsString() + "  -  temp checking...")
-    if checkTempConstraint_OFF():
-        print(getCurrentDateTimeAsString() + "  -  stop heating (temp)")
-        requests.post('http://192.168.178.106/relay/0?turn=off')
+        print(getCurrentDateTimeAsString() + "  -  temp checking...")
+        if checkTempConstraint_OFF():
+            print(getCurrentDateTimeAsString() + "  -  stop heating (temp)")
+            requests.post('http://192.168.178.106/relay/0?turn=off')
 
-    if checkTempConstraint_ON() and DeviceIsHomeState:
-        print(getCurrentDateTimeAsString() + "  -  start heating (temp)")
-        requests.post('http://192.168.178.106/relay/0?turn=on')
+        if checkTempConstraint_ON() and DeviceIsHomeState:
+            print(getCurrentDateTimeAsString() + "  -  start heating (temp)")
+            requests.post('http://192.168.178.106/relay/0?turn=on')
 
-    # save temp from now
-    DeviceWasHomeState = DeviceIsHomeState
+        # save temp from now
+        DeviceWasHomeState = DeviceIsHomeState
 
-    print("sleep...\n")
+        print("sleep...\n")
+
+    except:
+        print("An exception occurred")
 
     # wait one minute
     time.sleep(60)

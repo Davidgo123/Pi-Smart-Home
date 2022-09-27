@@ -13,7 +13,6 @@ ADDRESS = '192.168.178.1'
 PASSWORD = 'hirt3846'
 
 currentTemp = 0
-oldTemp = 0
 
 # state for last Check if one Device is home
 DeviceWasHomeState = False
@@ -36,8 +35,8 @@ def getCurrentWeatherAsJson():
 # round down currentTemp and return
 def getCurrentTemp():
     json_data = getCurrentWeatherAsJson()
-    print(getCurrentDateTimeAsString() + "  -  got Temp: " + str(json_data['main']['temp'] // 1))
-    return json_data['main']['temp'] // 1
+    print(getCurrentDateTimeAsString() + "  -  got Temp: " + str(json_data['main']['temp']))
+    return json_data['main']['temp']
 
 
 # ---------------------------------------------------------------
@@ -72,20 +71,24 @@ def checkDeviceConstraint():
     global DeviceIsHomeState
     global DeviceWasHomeState
 
+    checkIfDeviceIsHome(macs)
+
     # check if no one is home
     if not DeviceIsHomeState:
         # check if heating is not already off
         r = requests.get('http://192.168.178.106/relay/0?')
-        if not r.json()['ison']:
+        if r.json()['ison']:
             # stop heating
             print(getCurrentDateTimeAsString() + "  -  stop heating (no device now online)")
             requests.post('http://192.168.178.106/relay/0?turn=off')
+            return
 
     # check temp if someone comes home
-    if DeviceIsHomeState and not DeviceWasHomeState:
+    if DeviceIsHomeState and (not DeviceWasHomeState):
         if checkTempConstraint_ON():
             print(getCurrentDateTimeAsString() + "  -  start heating (device now online)")
             requests.post('http://192.168.178.106/relay/0?turn=on')
+            return
 
 
 # ---------------------------------------------------------------
@@ -93,12 +96,11 @@ def checkDeviceConstraint():
 # check start heating (temp constraint)
 def checkTempConstraint_ON():
     global currentTemp
-    global oldTemp
 
-    if currentTemp <= 12 and oldTemp > 12:
+    if currentTemp <= 12:
         # check if heating is not already on
         r = requests.get('http://192.168.178.106/relay/0?')
-        if r.json()['ison']:
+        if not r.json()['ison']:
             return True
     return False
 
@@ -106,13 +108,12 @@ def checkTempConstraint_ON():
 # check stop heating (temp constraint)
 def checkTempConstraint_OFF():
     global currentTemp
-    global oldTemp
 
-    if currentTemp > 12 and oldTemp <= 12:
+    if currentTemp > 12:
         print("Temp goes over 12°, heating stopped!")
         # check if heating is not already off
         r = requests.get('http://192.168.178.106/relay/0?')
-        if not r.json()['ison']:
+        if r.json()['ison']:
             return True
     return False
 
@@ -121,19 +122,14 @@ def checkTempConstraint_OFF():
 print("start program:")
 
 while True:
-    # check 30 times device constraint (one time per minute)
-    print(getCurrentDateTimeAsString() + "  -  start 30 times device checking")
-    for x in range(30):
-        # get current temp
-        currentTemp = getCurrentTemp()
-        checkIfDeviceIsHome(macs)
-        checkDeviceConstraint()
-        time.sleep(60)
-        # save temp from now
-        oldTemp = currentTemp
-        DeviceWasHomeState = DeviceIsHomeState
+    # get current temp
+    currentTemp = getCurrentTemp()
 
-    print(getCurrentDateTimeAsString() + "  -  start temp checking")
+    # check 30 times device constraint (one time per minute)
+    print(getCurrentDateTimeAsString() + "  -  device checking...")
+    checkDeviceConstraint()
+
+    print(getCurrentDateTimeAsString() + "  -  temp checking...")
     if checkTempConstraint_OFF():
         print(getCurrentDateTimeAsString() + "  -  stop heating (temp)")
         requests.post('http://192.168.178.106/relay/0?turn=off')
@@ -141,6 +137,11 @@ while True:
     if checkTempConstraint_ON() and DeviceIsHomeState:
         print(getCurrentDateTimeAsString() + "  -  start heating (temp)")
         requests.post('http://192.168.178.106/relay/0?turn=on')
+
+    # save temp from now
+    DeviceWasHomeState = DeviceIsHomeState
+
+    print("sleep...\n")
 
     # wait one minute
     time.sleep(60)

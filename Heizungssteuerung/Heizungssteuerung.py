@@ -121,15 +121,17 @@ def checkTempConstraint_OFF():
 print("start program:")
 
 while True:
-    # get current temp
-    currentTemp = getCurrentTemp()
-    checkIfDeviceIsHome(macs)
-
     # check 30 times device constraint (one time per minute)
     print(getCurrentDateTimeAsString() + "  -  start 30 times device checking")
     for x in range(30):
+        # get current temp
+        currentTemp = getCurrentTemp()
+        checkIfDeviceIsHome(macs)
         checkDeviceConstraint()
         time.sleep(60)
+        # save temp from now
+        oldTemp = currentTemp
+        DeviceWasHomeState = DeviceIsHomeState
 
     print(getCurrentDateTimeAsString() + "  -  start temp checking")
     if checkTempConstraint_OFF():
@@ -139,10 +141,6 @@ while True:
     if checkTempConstraint_ON() and DeviceIsHomeState:
         print(getCurrentDateTimeAsString() + "  -  start heating (temp)")
         requests.post('http://192.168.178.106/relay/0?turn=on')
-
-    # save temp from now
-    oldTemp = currentTemp
-    DeviceWasHomeState = DeviceIsHomeState
 
     # wait one minute
     time.sleep(60)

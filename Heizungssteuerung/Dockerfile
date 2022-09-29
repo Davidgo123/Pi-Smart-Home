@@ -1,6 +1,7 @@
 FROM python:3.6
 
 ADD Heizungssteuerung.py /
+ENV TZ=Europe/Berlin
 
 # Erweiterungen
 RUN pip3 install requests

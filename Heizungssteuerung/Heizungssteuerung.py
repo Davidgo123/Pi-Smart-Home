@@ -22,8 +22,9 @@ PASSWORD = 'hirt3846'
 DeviceWasHomeState = False
 DeviceIsHomeState = False
 
-HeatingIsRunning = False
-HeatingWasRunning = False
+r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
+HeatingIsRunning = r.json()['components'][0]['state']
+HeatingWasRunning = r.json()['components'][0]['state']
 
 # HTTP data for shelly request-Post
 jsonON = '{"id": 1, "type": 0, "state": {"state": true}}'

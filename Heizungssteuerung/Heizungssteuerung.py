@@ -1,7 +1,6 @@
 import time
 import requests
 import json
-import logging
 from datetime import datetime
 from fritzconnection.lib.fritzhosts import FritzHosts
 
@@ -9,10 +8,6 @@ macs = ['12:5E:5E:87:E7:9A',  # David
         '1E:6A:E8:18:00:99',  # Lukas
         '16:D1:B3:39:7E:C4'   # Yannick
         ]
-
-# logging config
-logging.basicConfig(filename="log.txt", level=logging.DEBUG)
-logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 # WIFI Settings
 ADDRESS = '192.168.178.1'
@@ -47,7 +42,7 @@ def getCurrentWeatherAsJson():
 # round down currentTemp and return
 def getCurrentTemp():
     json_data = getCurrentWeatherAsJson()
-    logging.info(getCurrentDateTimeAsString() + "  -  got Temp: " + str(json_data['main']['temp']))
+    print(getCurrentDateTimeAsString() + "  -  got Temp: " + str(json_data['main']['temp']))
     return json_data['main']['temp']
 
 
@@ -67,12 +62,12 @@ def checkIfDeviceIsHome(devices):
         # Check Online Status
         for device in devices:
             if device == mac and status == 'active':
-                logging.info(getCurrentDateTimeAsString() + "  -  online device found")
+                print(getCurrentDateTimeAsString() + "  -  online device found")
                 DeviceIsHomeState = True
                 return
 
     # return False if no Device is Online
-    logging.info(getCurrentDateTimeAsString() + "  -  no online device found")
+    print(getCurrentDateTimeAsString() + "  -  no online device found")
     DeviceIsHomeState = False
     return
 
@@ -91,14 +86,14 @@ def checkDeviceConstraint():
         r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
         if r.json()['components'][0]['state']:
             # stop heating
-            logging.info(getCurrentDateTimeAsString() + "  -  stop heating (no device now online)")
+            print(getCurrentDateTimeAsString() + "  -  stop heating (no device now online)")
             requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonOFF)
             return
 
     # check temp if someone comes home
     if DeviceIsHomeState and (not DeviceWasHomeState):
         if checkTempConstraint_ON():
-            logging.info(getCurrentDateTimeAsString() + "  -  start heating (device now online)")
+            print(getCurrentDateTimeAsString() + "  -  start heating (device now online)")
             requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonON)
             return
 
@@ -111,7 +106,7 @@ def checkTempConstraint_ON():
 
     if currentTemp <= 12:
         # check if heating is not already on
-        logging.info(getCurrentDateTimeAsString() + "  -  Temp goes under 12 degrees!")
+        print(getCurrentDateTimeAsString() + "  -  Temp goes under 12 degrees!")
         r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
         if not r.json()['components'][0]['state']:
             return True
@@ -123,7 +118,7 @@ def checkTempConstraint_OFF():
     global currentTemp
 
     if currentTemp > 12:
-        logging.info(getCurrentDateTimeAsString() + "  -  Temp goes over 12 degrees!")
+        print(getCurrentDateTimeAsString() + "  -  Temp goes over 12 degrees!")
         # check if heating is not already off
         r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
         if r.json()['components'][0]['state']:
@@ -132,7 +127,7 @@ def checkTempConstraint_OFF():
 
 
 # ---------------------------------------------------------------
-logging.info("start program:")
+print("start program:")
 
 while True:
 
@@ -140,26 +135,26 @@ while True:
     HeatingIsRunning = r.json()['components'][0]['state']
 
     if HeatingIsRunning != HeatingWasRunning:
-        logging.info(getCurrentDateTimeAsString() + "  -  manual control detected: sleep for 1h")
+        print(getCurrentDateTimeAsString() + "  -  manual control detected: sleep for 1h")
         time.sleep(3600)
 
     # get current temp
     currentTemp = getCurrentTemp()
 
     # check 30 times device constraint (one time per minute)
-    logging.info(getCurrentDateTimeAsString() + "  -  device checking...")
+    print(getCurrentDateTimeAsString() + "  -  device checking...")
     checkDeviceConstraint()
 
-    logging.info(getCurrentDateTimeAsString() + "  -  temp checking...")
+    print(getCurrentDateTimeAsString() + "  -  temp checking...")
     if checkTempConstraint_OFF():
-        logging.info(getCurrentDateTimeAsString() + "  -  stop heating (temp)")
+        print(getCurrentDateTimeAsString() + "  -  stop heating (temp)")
         requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonOFF)
 
     if checkTempConstraint_ON() and DeviceIsHomeState:
-        logging.info(getCurrentDateTimeAsString() + "  -  start heating (temp)")
+        print(getCurrentDateTimeAsString() + "  -  start heating (temp)")
         requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonON)
 
-    logging.info("sleep...\n")
+    print("sleep...\n")
 
     # save temp from now
     DeviceWasHomeState = DeviceIsHomeState

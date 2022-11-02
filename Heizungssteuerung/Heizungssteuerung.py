@@ -54,25 +54,29 @@ def getCurrentTemp():
 def checkIfDeviceIsHome(devices):
     global DeviceIsHomeState
 
-    # Get connected devices in network
-    fh = FritzHosts(address='192.168.178.1', password='hirt3846')
-    hosts = fh.get_hosts_info()
+    try:
+        # Get connected devices in network
+        fh = FritzHosts(address='192.168.178.1', password='hirt3846')
+        hosts = fh.get_hosts_info()
 
-    # iterate over all connected devices
-    for index, host in enumerate(hosts, start=1):
-        status = 'active' if host['status'] else 'inactive'
-        mac = host['mac'] if host['mac'] else '-'
-        # Check Online Status
-        for device in devices:
-            if device == mac and status == 'active':
-                print(getCurrentDateTimeAsString() + "  -  online device found")
-                DeviceIsHomeState = True
-                return
+        # iterate over all connected devices
+        for index, host in enumerate(hosts, start=1):
+            status = 'active' if host['status'] else 'inactive'
+            mac = host['mac'] if host['mac'] else '-'
+            # Check Online Status
+            for device in devices:
+                if device == mac and status == 'active':
+                    print(getCurrentDateTimeAsString() + "  -  online device found")
+                    DeviceIsHomeState = True
+                    return
 
-    # return False if no Device is Online
-    print(getCurrentDateTimeAsString() + "  -  no online device found")
-    DeviceIsHomeState = False
-    return
+        # return False if no Device is Online
+        print(getCurrentDateTimeAsString() + "  -  no online device found")
+        DeviceIsHomeState = False
+
+    except:
+        print("An exception occurred (deviceChecking)")
+        DeviceIsHomeState = False
 
 
 # ---------------------------------------------------------------
@@ -164,7 +168,7 @@ while True:
         HeatingWasRunning = HeatingIsRunning
 
     except:
-        print("An exception occurred")
+        print("An exception occurred (main)")
 
     # wait one minute
     time.sleep(60)

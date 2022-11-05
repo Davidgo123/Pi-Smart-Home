@@ -142,7 +142,7 @@ while True:
 
     try:
         r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
-        HeatingIsRunning = str(r.json()['components'][0]['state'])
+        HeatingIsRunning = r.json()['components'][0]['state']
 
         if HeatingIsRunning != HeatingWasRunning:
             print(getCurrentDateTimeAsString() + "  -  manual control detected: sleep for 1h")

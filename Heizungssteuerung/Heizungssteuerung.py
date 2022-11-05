@@ -175,7 +175,8 @@ while True:
 
     # save temp from now
     DeviceWasHomeState = DeviceIsHomeState
-    HeatingWasRunning = HeatingIsRunning
+    r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
+    HeatingWasRunning = r.json()['components'][0]['state']
 
     # wait one minute
     time.sleep(60)

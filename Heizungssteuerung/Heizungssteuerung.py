@@ -5,8 +5,9 @@ from datetime import datetime
 from fritzconnection.lib.fritzhosts import FritzHosts
 
 macs = ['12:5E:5E:87:E7:9A',  # David
-        '1E:6A:E8:18:00:99',  # Lukas
-        '16:D1:B3:39:7E:C4'  # Yannick
+        'E2:35:BD:07:7A:23',  # Lukas
+        '16:D1:B3:39:7E:C4',  # Yannick
+        '4A:77:8D:D0:6D:27'   # Mariella
         ]
 
 # WIFI Settings

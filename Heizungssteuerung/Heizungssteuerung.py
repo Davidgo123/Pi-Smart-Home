@@ -25,6 +25,7 @@ HeatingWasRunning = r.json()['components'][0]['state']
 jsonON = '{"id": 1, "type": 0, "state": {"state": true}}'
 jsonOFF = '{"id": 1, "type": 0, "state": {"state": false}}'
 
+
 # ---------------------------------------------------------------
 
 def getCurrentDateTimeAsString():
@@ -86,26 +87,29 @@ def checkDeviceConstraint():
 
     checkIfDeviceIsHome(macs)
 
-    # check if no one is home
-    if not DeviceIsHomeState:
-        # check if heating is not already off
-        r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
-        if r.json()['components'][0]['state']:
-            # stop heating
-            while requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonOFF).status_code != 200:
-                print("  -  failed to set state ON. retry...")
-                time.sleep(10)
-            print(getCurrentDateTimeAsString() + "  -  stop heating (no device online)")
-            return
+    try:
+        # check if no one is home
+        if not DeviceIsHomeState:
+            # check if heating is not already off
+            r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
+            if r.json()['components'][0]['state']:
+                # stop heating
+                while requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonOFF).status_code != 200:
+                    print("  -  failed to set state ON. retry...")
+                    time.sleep(10)
+                print(getCurrentDateTimeAsString() + "  -  stop heating (no device online)")
+                return
 
-    # check temp if someone comes home
-    if DeviceIsHomeState and (not DeviceWasHomeState):
-        if checkTempConstraint_ON():
-            while requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonON).status_code != 200:
-                print("  -  failed to set state ON. retry...")
-                time.sleep(10)
-            print(getCurrentDateTimeAsString() + "  -  start heating (device online)")
-            return
+        # check temp if someone comes home
+        if DeviceIsHomeState and (not DeviceWasHomeState):
+            if checkTempConstraint_ON():
+                while requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonON).status_code != 200:
+                    print("  -  failed to set state ON. retry...")
+                    time.sleep(10)
+                print(getCurrentDateTimeAsString() + "  -  start heating (device online)")
+                return
+    except:
+        print("An exception occurred (checkDeviceConstraint)")
 
 
 # ---------------------------------------------------------------
@@ -114,26 +118,33 @@ def checkDeviceConstraint():
 def checkTempConstraint_ON():
     global currentTemp
 
-    if currentTemp <= 12:
-        # check if heating is not already on
-        r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
-        if not r.json()['components'][0]['state']:
-            print(getCurrentDateTimeAsString() + "  -  Temp goes under 12 degrees!")
-            return True
-    return False
+    try:
+        if currentTemp <= 12:
+            # check if heating is not already on
+            r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
+            if not r.json()['components'][0]['state']:
+                print(getCurrentDateTimeAsString() + "  -  Temp goes under 12 degrees!")
+                return True
+        return False
+
+    except:
+        print("An exception occurred (checkTempConstraint_ON)")
 
 
 # check stop heating (temp constraint)
 def checkTempConstraint_OFF():
     global currentTemp
 
-    if currentTemp > 12:
-        # check if heating is not already off
-        r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
-        if r.json()['components'][0]['state']:
-            print(getCurrentDateTimeAsString() + "  -  Temp goes over 12 degrees!")
-            return True
-    return False
+    try:
+        if currentTemp > 12:
+            # check if heating is not already off
+            r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
+            if r.json()['components'][0]['state']:
+                print(getCurrentDateTimeAsString() + "  -  Temp goes over 12 degrees!")
+                return True
+        return False
+    except:
+        print("An exception occurred (checkTempConstraint_OFF)")
 
 
 # ---------------------------------------------------------------
@@ -157,7 +168,7 @@ while True:
 
         print(getCurrentDateTimeAsString() + "  -  temp checking...")
         if checkTempConstraint_OFF():
-            while  requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonOFF).status_code != 200:
+            while requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonOFF).status_code != 200:
                 print("  -  failed to set state ON. retry...")
                 time.sleep(10)
             print(getCurrentDateTimeAsString() + "  -  stop heating (temp)")
@@ -170,13 +181,13 @@ while True:
 
         print("sleep...\n")
 
+        # save temp from now
+        DeviceWasHomeState = DeviceIsHomeState
+        r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
+        HeatingWasRunning = r.json()['components'][0]['state']
+
     except:
         print("An exception occurred (main)")
-
-    # save temp from now
-    DeviceWasHomeState = DeviceIsHomeState
-    r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
-    HeatingWasRunning = r.json()['components'][0]['state']
 
     # wait one minute
     time.sleep(60)

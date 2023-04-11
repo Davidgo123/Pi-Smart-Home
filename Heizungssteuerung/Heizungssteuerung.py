@@ -26,32 +26,44 @@ HeatingWasRunning = r.json()['components'][0]['state']
 jsonON = '{"id": 1, "type": 0, "state": {"state": true}}'
 jsonOFF = '{"id": 1, "type": 0, "state": {"state": false}}'
 
-
 # ---------------------------------------------------------------
 
 def getCurrentDateTimeAsString():
     # dd/mm/YY H:M:S
     return datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
-
 # ---------------------------------------------------------------
 
-def getCurrentWeatherAsJson():
-    # [lat=52,333][lon=9,7] - Wettbergen
-    r = requests.get(
-        'https://api.openweathermap.org/data/2.5/weather?lat=52,333&lon=9,7&units=metric&appid=662e86ccdebdefe4deafe7379cd9113a')
-    return json.loads(r.text)
-
-
-# round down currentTemp and return
+# return currentTemp
 def getCurrentTemp():
-    json_data = getCurrentWeatherAsJson()
-    print(getCurrentDateTimeAsString() + "  -  got Temp: " + str(json_data['main']['temp']))
-    return json_data['main']['temp']
+    try:
+        # [lat=52,333][lon=9,7] - Wettbergen
+        r = requests.get(
+            'https://api.openweathermap.org/data/2.5/weather?lat=52,333&lon=9,7&units=metric&appid=662e86ccdebdefe4deafe7379cd9113a')
+        json_data = json.loads(r.text)
+        print(getCurrentDateTimeAsString() + "  -  got Temp: " + str(json_data['main']['temp']))
+        return json_data['main']['temp']
 
+    except:
+        print("An exception occurred (getCurrentTemp)")
+        return 0.0
+
+def getCurrentFeelsLikeTemp():
+    try:
+        # [lat=52,333][lon=9,7] - Wettbergen
+        r = requests.get(
+            'https://api.openweathermap.org/data/2.5/weather?lat=52,333&lon=9,7&units=metric&appid=662e86ccdebdefe4deafe7379cd9113a')
+        json_data = json.loads(r.text)
+        print(getCurrentDateTimeAsString() + "  -  got Temp: " + str(json_data['main']['feels_like']))
+        return json_data['main']['feels_like']
+
+    except:
+        print("An exception occurred (getCurrentTemp)")
+        return 0.0
 
 # ---------------------------------------------------------------
 
+# check if device is home
 def checkIfDeviceIsHome(devices):
     global DeviceIsHomeState
 
@@ -79,7 +91,6 @@ def checkIfDeviceIsHome(devices):
         print("An exception occurred (deviceChecking)")
         DeviceIsHomeState = False
 
-
 # ---------------------------------------------------------------
 
 def checkDeviceConstraint():
@@ -95,23 +106,20 @@ def checkDeviceConstraint():
             r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
             if r.json()['components'][0]['state']:
                 # stop heating
-                while requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonOFF).status_code != 200:
-                    print("  -  failed to set state ON. retry...")
-                    time.sleep(10)
+                time.sleep(1)
+                requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonOFF)
                 print(getCurrentDateTimeAsString() + "  -  stop heating (no device online)")
                 return
 
         # check temp if someone comes home
         if DeviceIsHomeState and (not DeviceWasHomeState):
             if checkTempConstraint_ON():
-                while requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonON).status_code != 200:
-                    print("  -  failed to set state ON. retry...")
-                    time.sleep(10)
+                time.sleep(1)
+                requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonON)
                 print(getCurrentDateTimeAsString() + "  -  start heating (device online)")
                 return
     except:
         print("An exception occurred (checkDeviceConstraint)")
-
 
 # ---------------------------------------------------------------
 
@@ -131,6 +139,7 @@ def checkTempConstraint_ON():
     except:
         print("An exception occurred (checkTempConstraint_ON)")
 
+# ---------------------------------------------------------------
 
 # check stop heating (temp constraint)
 def checkTempConstraint_OFF():
@@ -144,6 +153,7 @@ def checkTempConstraint_OFF():
                 print(getCurrentDateTimeAsString() + "  -  Temp goes over 12 degrees!")
                 return True
         return False
+
     except:
         print("An exception occurred (checkTempConstraint_OFF)")
 
@@ -169,15 +179,13 @@ while True:
 
         print(getCurrentDateTimeAsString() + "  -  temp checking...")
         if checkTempConstraint_OFF():
-            while requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonOFF).status_code != 200:
-                print("  -  failed to set state ON. retry...")
-                time.sleep(10)
+            time.sleep(1)
+            requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonOFF)
             print(getCurrentDateTimeAsString() + "  -  stop heating (temp)")
 
         if checkTempConstraint_ON() and DeviceIsHomeState:
-            while requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonON).status_code != 200:
-                print("  -  failed to set state ON. retry...")
-                time.sleep(10)
+            time.sleep(1)
+            requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonON)
             print(getCurrentDateTimeAsString() + "  -  start heating (temp)")
 
         print("sleep...\n")

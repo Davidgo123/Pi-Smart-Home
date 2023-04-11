@@ -171,7 +171,7 @@ while True:
             time.sleep(3600)
 
         # get current temp
-        currentTemp = getCurrentTemp()
+        currentTemp = getCurrentFeelsLikeTemp()
 
         # check 30 times device constraint (one time per minute)
         print(getCurrentDateTimeAsString() + "  -  device checking...")

@@ -113,39 +113,36 @@ def checkTempConstraint_OFF(currentTemp):
 # ---------------------------------------------------------------
 
 while True:
-    try:
-        r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
-        HeatingIsRunning = r.json()['components'][0]['state']
+    r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
+    HeatingIsRunning = r.json()['components'][0]['state']
 
-        if HeatingIsRunning != HeatingWasRunning:
-            print(getCurrentDateTimeAsString() + "  -  manual control detected: sleep for 1h")
-            time.sleep(3600)
+    if HeatingIsRunning != HeatingWasRunning:
+        print(getCurrentDateTimeAsString() + "  -  manual control detected: sleep for 1h")
+        time.sleep(3600)
 
-        print(getCurrentDateTimeAsString() + "  -  starting constraint checking...")
+    print(getCurrentDateTimeAsString() + "  -  starting constraint checking...")
 
-        # update temp and DeviceCheck
-        currentTemp = getCurrentFeelsLikeTemp(lastTemp)
-        DeviceIsHome = checkIfDeviceIsHome(macs)
+    # update temp and DeviceCheck
+    currentTemp = getCurrentFeelsLikeTemp(lastTemp)
+    DeviceIsHome = checkIfDeviceIsHome(macs)
 
-        # checking constraints
-        if checkTempConstraint_OFF(currentTemp) or (not DeviceIsHome):
-            time.sleep(1)
-            requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonOFF)
-            print(getCurrentDateTimeAsString() + "  -  stop heating!")
+    # checking constraints
+    if checkTempConstraint_OFF(currentTemp) or (not DeviceIsHome):
+        time.sleep(1)
+        requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonOFF)
+        print(getCurrentDateTimeAsString() + "  -  stop heating!")
 
-        elif checkTempConstraint_ON(currentTemp) and DeviceIsHome:
-            time.sleep(1)
-            requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonON)
-            print(getCurrentDateTimeAsString() + "  -  start heating!")
+    elif checkTempConstraint_ON(currentTemp) and DeviceIsHome:
+        time.sleep(1)
+        requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonON)
+        print(getCurrentDateTimeAsString() + "  -  start heating!")
 
-        else:
-            print(getCurrentDateTimeAsString() + "  -  nothing to do... (running: " + HeatingIsRunning + ")")
+    else:
+        print(getCurrentDateTimeAsString() + "  -  nothing to do... (running: " + HeatingIsRunning + ")")
 
-        # save current running state for manuell control
-        HeatingWasRunning = HeatingIsRunning
+    # save current running state for manuell control
+    HeatingWasRunning = HeatingIsRunning
 
-    except:
-        print("An exception occurred (main)")
 
     # 2min sleep
     print("sleep...")

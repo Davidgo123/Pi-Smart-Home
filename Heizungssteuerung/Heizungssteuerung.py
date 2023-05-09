@@ -23,6 +23,9 @@ HeatingWasRunning = r.json()['components'][0]['state']
 # saves last valid temp
 lastTemp = 0.0
 
+# min temp in celsius
+minTempForHeating = 11
+
 # HTTP data for shelly request-Post
 jsonON = '{"id": 1, "type": 0, "state": {"state": true}}'
 jsonOFF = '{"id": 1, "type": 0, "state": {"state": false}}'
@@ -85,11 +88,11 @@ def checkIfDeviceIsHome(devices):
 # check start heating (temp constraint)
 def checkTempConstraint_ON(currentTemp):
     try:
-        if currentTemp <= 11:
+        if currentTemp <= minTempForHeating:
             # check if heating is not already on
             r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
             if not r.json()['components'][0]['state']:
-                print(getCurrentDateTimeAsString() + "  -  Temp goes under 10 degrees!")
+                print(getCurrentDateTimeAsString() + "  -  Temp goes under " + str(minTempForHeating) + " degrees!")
                 return True
         return False
 
@@ -103,11 +106,11 @@ def checkTempConstraint_ON(currentTemp):
 # check stop heating (temp constraint)
 def checkTempConstraint_OFF(currentTemp):
     try:
-        if currentTemp > 11:
+        if currentTemp > minTempForHeating:
             # check if heating is not already off
             r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
             if r.json()['components'][0]['state']:
-                print(getCurrentDateTimeAsString() + "  -  Temp goes over 10 degrees!")
+                print(getCurrentDateTimeAsString() + "  -  Temp goes over " + str(minTempForHeating) + " degrees!")
                 return True
         return False
 

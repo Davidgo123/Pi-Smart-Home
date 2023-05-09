@@ -138,7 +138,7 @@ while True:
         print(getCurrentDateTimeAsString() + "  -  start heating!")
 
     else:
-        print(getCurrentDateTimeAsString() + "  -  nothing to do... (running: " + HeatingIsRunning + ")")
+        print(getCurrentDateTimeAsString() + "  -  nothing to do... (running: " + str(HeatingIsRunning) + ")")
 
     # save current running state for manuell control
     HeatingWasRunning = HeatingIsRunning

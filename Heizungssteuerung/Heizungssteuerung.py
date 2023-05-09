@@ -85,7 +85,7 @@ def checkIfDeviceIsHome(devices):
 # check start heating (temp constraint)
 def checkTempConstraint_ON(currentTemp):
     try:
-        if currentTemp <= 10:
+        if currentTemp <= 11:
             # check if heating is not already on
             r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
             if not r.json()['components'][0]['state']:
@@ -103,7 +103,7 @@ def checkTempConstraint_ON(currentTemp):
 # check stop heating (temp constraint)
 def checkTempConstraint_OFF(currentTemp):
     try:
-        if currentTemp > 10:
+        if currentTemp > 11:
             # check if heating is not already off
             r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
             if r.json()['components'][0]['state']:
@@ -150,7 +150,7 @@ while True:
     else:
         print(getCurrentDateTimeAsString() + "  -  nothing to do! (running: " + str(HeatingIsRunning) + ")")
 
-    # save current running state for manuell control
+    # save current running state for manuel control
     HeatingWasRunning = HeatingIsRunning
 
     # 2min sleep

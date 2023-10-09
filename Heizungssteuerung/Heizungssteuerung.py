@@ -121,19 +121,25 @@ def checkTempConstraint_OFF(currentTemp):
 
 # ---------------------------------------------------------------
 
+def getState():
+    try:
+        r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
+        return r.json()['components'][0]['state']
+    except:
+        print("An exception occurred (manuel control check)")
+        return False
+
+
 while True:
 
     print(getCurrentDateTimeAsString() + "  -  starting checking...")
 
     # checking manuel control
     try:
-        r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
-        HeatingIsRunning = r.json()['components'][0]['state']
-
+        HeatingIsRunning = getState()
         if HeatingIsRunning != HeatingWasRunning:
             print(getCurrentDateTimeAsString() + "  -  manual control detected: sleep for 1h")
             time.sleep(3600)
-
     except:
         print("An exception occurred (manuel control check)")
 
@@ -145,10 +151,12 @@ while True:
     if checkTempConstraint_OFF(currentTemp) or (not DeviceIsHome):
         requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonOFF)
         print(getCurrentDateTimeAsString() + "  -  stopping heating!")
+        HeatingIsRunning = getState()
 
     elif checkTempConstraint_ON(currentTemp) and DeviceIsHome:
         requests.post('http://192.168.178.106/rpc/Shelly.SetState', data=jsonON)
         print(getCurrentDateTimeAsString() + "  -  starting heating!")
+        HeatingIsRunning = getState()
 
     else:
         print(getCurrentDateTimeAsString() + "  -  nothing to do! (running: " + str(HeatingIsRunning) + ")")

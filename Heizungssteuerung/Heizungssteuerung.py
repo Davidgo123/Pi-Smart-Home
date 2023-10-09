@@ -138,8 +138,8 @@ while True:
     try:
         HeatingIsRunning = getState()
         if HeatingIsRunning != HeatingWasRunning:
-            print(getCurrentDateTimeAsString() + "  -  manual control detected: sleep for 2h")
-            time.sleep(7200)
+            print(getCurrentDateTimeAsString() + "  -  manual control detected: sleep for 1h")
+            time.sleep(3600)
     except:
         print("An exception occurred (manuel control check)")
 

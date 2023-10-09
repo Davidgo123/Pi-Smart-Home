@@ -135,13 +135,10 @@ while True:
     print(getCurrentDateTimeAsString() + "  -  starting checking...")
 
     # checking manuel control
-    try:
-        HeatingIsRunning = getState()
-        if HeatingIsRunning != HeatingWasRunning:
-            print(getCurrentDateTimeAsString() + "  -  manual control detected: sleep for 1h")
-            time.sleep(3600)
-    except:
-        print("An exception occurred (manuel control check)")
+    HeatingIsRunning = getState()
+    if HeatingIsRunning != HeatingWasRunning:
+        print(getCurrentDateTimeAsString() + "  -  manual control detected: sleep for 1h")
+        time.sleep(3600)
 
     # update temp and DeviceCheck
     currentTemp = getCurrentFeelsLikeTemp(lastTemp)

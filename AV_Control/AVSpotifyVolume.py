@@ -1,11 +1,11 @@
 import json
-
 import requests
 import time
+import os
 from fritzconnection.lib.fritzhosts import FritzHosts
 
 bridge_ip = "192.168.178.45"
-bridge_username = "J5RVHpoWwgviHQbnYdPaYHJTe63sHIRQxVs1ja6i"
+bridge_username = os.environ['bridge_username']
 headers = {'content-type': 'application/json'}
 
 URL = 'http://192.168.178.20:80/YamahaRemoteControl/ctrl'
@@ -43,7 +43,7 @@ def checkPower_AV():
 
 # Abfragen des Power Zustandes
 def checkPower_PC():
-    fh = FritzHosts(address='192.168.178.1', password='hirt3846')
+    fh = FritzHosts(address='192.168.178.1', password=os.environ['router_pw'])
     hosts = fh.get_hosts_info()
     # iterate over all connected devices
     for index, host in enumerate(hosts, start=1):

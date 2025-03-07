@@ -1,13 +1,13 @@
 from flask import Flask
 import subprocess
-
+import os
 import time
 import json
 import requests
 
 # Hue wichtige Konstanten (IP, Username, Header, Payload)
 bridge_ip = "192.168.178.45"
-bridge_username = "J5RVHpoWwgviHQbnYdPaYHJTe63sHIRQxVs1ja6i"
+bridge_username = os.environ['bridge_username']
 headers = {'content-type': 'application/json'}
 # ID der Hueplay
 group_id_bars = 4

@@ -2,9 +2,10 @@ import json
 import time
 import requests
 import datetime
+import os
 
 bridge_ip = "192.168.178.45"
-bridge_username = "J5RVHpoWwgviHQbnYdPaYHJTe63sHIRQxVs1ja6i"
+bridge_username = os.environ['bridge_username']
 headers = {'content-type': 'application/json'}
 
 # ID der Hueplay

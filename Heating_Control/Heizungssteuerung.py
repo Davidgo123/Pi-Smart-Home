@@ -2,18 +2,19 @@ import time
 import requests
 import json
 from datetime import datetime
+import os
 from fritzconnection.lib.fritzhosts import FritzHosts
 
 macs = [
-    '12:5E:5E:87:E7:9A',  # David
-    'E2:35:BD:07:7A:23',  # Lukas
-    '16:D1:B3:39:7E:C4',  # Yannick
-    '4A:77:8D:D0:6D:27'  # Mariella
+    '12:5E:5E:87:E7:9A',  # Dav
+    'E2:35:BD:07:7A:23',  # Luk
+    '16:D1:B3:39:7E:C4',  # Yan
+    '4A:77:8D:D0:6D:27'  # Mar
 ]
 
 # WIFI Settings
-ADDRESS = '192.168.178.1'
-PASSWORD = 'hirt3846'
+ADDRESS =  os.environ['router_ip']
+PASSWORD = os.environ['router_pw']
 
 # states for manuel control
 r = requests.get('http://192.168.178.106/rpc/Shelly.GetInfoExt')
@@ -61,7 +62,7 @@ def getCurrentFeelsLikeTemp(lastTemp):
 def checkIfDeviceIsHome(devices):
     try:
         # Get connected devices in network
-        fh = FritzHosts(address='192.168.178.1', password='hirt3846')
+        fh = FritzHosts(address='192.168.178.1', password=os.environ['router_pw'])
         hosts = fh.get_hosts_info()
 
         # iterate over all connected devices
